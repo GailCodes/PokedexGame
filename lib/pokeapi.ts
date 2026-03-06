@@ -1,9 +1,9 @@
 const POKE_API_BASE_URL = "https://pokeapi.co/api/v2";
-const POKEMON_COUNT = 1025;
+const POKEMON_COUNT = 151;
 const ID_BLACKLIST = [];
 
 function randomID(): number {
-  const id = Math.floor(Math.random() * 1025) + 1;
+  const id = Math.floor(Math.random() * POKEMON_COUNT) + 1;
 
   if (ID_BLACKLIST.includes(id)) {
     return randomID();
