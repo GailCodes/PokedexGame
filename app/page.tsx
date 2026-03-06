@@ -26,9 +26,13 @@ export default function Page() {
 
     // Check how many types are correct (seperate by comma and trim whitespace
     let amountOfTypesCorrect: number = 0;
-    const typesGuessArray = typeGuess
+    let typesGuessArray = typeGuess
       .split(",")
       .map((type) => type.trim().toLowerCase());
+
+    if (typesGuessArray.length > currentPokemon.types.length) {
+      typesGuessArray.slice(0, currentPokemon.types.length);
+    }
 
     currentPokemon.types.forEach((type) => {
       const typeName = type.type.name.toLowerCase();
@@ -80,7 +84,7 @@ export default function Page() {
         <div className="flex gap-4 mt-20 bg-gray-700 p-4 rounded-lg">
           <img
             src={currentPokemon.sprites.front_default}
-            alt={currentPokemon.name}
+            alt={"Pokemon Sprite"}
             className="w-48 h-48 object-contain"
           />
 
