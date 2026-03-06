@@ -85,7 +85,7 @@ export default function Page() {
           />
 
           <div className="w-full">
-            <StatCardInput statType="ID" setGuess={setIdGuess} />
+            <StatCardInput statType="National Number" setGuess={setIdGuess} />
             <StatCardInput statType="Name" setGuess={setNameGuess} />
             <StatCard statType="Height" statInfo={currentPokemon.height} />
             <StatCard statType="Weight" statInfo={currentPokemon.weight} />
