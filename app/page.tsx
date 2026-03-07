@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { getPokemon } from "@lib/pokeapi";
 import StatCard from "@components/StatCard";
 import StatCardInput from "@components/StatCardInput";
+import { BounceLoader } from "react-spinners";
 
 export default function Page() {
   const [currentPokemon, setCurrentPokemon] = useState<any>(null);
@@ -16,9 +17,14 @@ export default function Page() {
   const [isNameCorrect, setIsNameCorrect] = useState<boolean>(false);
   const [amountOfTypesCorrect, setAmountOfTypesCorrect] = useState<number>(0);
 
+  const [submitButtonDisabled, setSubmitButtonDisabled] =
+    useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
   // Check if guesses are correct
   function checkGuesses() {
     if (!currentPokemon) return;
+    setSubmitButtonDisabled(true);
 
     const isIdCorrect: boolean = idGuess === currentPokemon.id.toString();
     const isNameCorrect: boolean =
@@ -67,12 +73,19 @@ export default function Page() {
 
   // Fetch a random Pokemon
   useEffect(() => {
+    setIsLoading(true);
     async function fetchPokemon() {
       try {
         const pokemon = await getPokemon();
         setCurrentPokemon(pokemon);
+
+        setTimeout(() => {
+          setSubmitButtonDisabled(false);
+          setIsLoading(false);
+        }, 1000);
       } catch (error) {
         console.error("Error fetching Pokemon:", error);
+        setIsLoading(false);
       }
     }
     fetchPokemon();
@@ -84,11 +97,18 @@ export default function Page() {
 
       {currentPokemon && (
         <div className="flex gap-4 mt-20 bg-gray-700 p-4 rounded-lg">
-          <img
-            src={currentPokemon.sprites.front_default}
-            alt={"Pokemon Sprite"}
-            className="w-48 h-48 object-contain"
-          />
+          {isLoading ? (
+            <div className="flex items-center justify-center w-48 h-48">
+              <BounceLoader color="#36d7b7" />
+            </div>
+          ) : (
+            <div className="flex items-center justify-center w-48 h-48">
+              <img
+                src={currentPokemon.sprites.front_default}
+                className="w-full h-full object-contain"
+              />
+            </div>
+          )}
 
           <div className="w-full">
             <StatCardInput statType="National Number" setGuess={setIdGuess} />
@@ -105,8 +125,9 @@ export default function Page() {
       )}
 
       <button
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer"
+        className={`text-white font-bold py-2 px-4 rounded ${submitButtonDisabled ? "bg-gray-500 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-700 cursor-pointer"}`}
         onClick={() => checkGuesses()}
+        disabled={submitButtonDisabled}
       >
         Submit Guess
       </button>
