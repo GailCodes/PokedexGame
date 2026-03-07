@@ -24,16 +24,18 @@ export default function Page() {
     const isNameCorrect: boolean =
       nameGuess.toLowerCase() === currentPokemon.name.toLowerCase();
 
-    // Check how many types are correct (seperate by comma and trim whitespace
+    // Check how many types are correct (seperate by comma and trim whitespace)
     let amountOfTypesCorrect: number = 0;
     let typesGuessArray = typeGuess
       .split(",")
       .map((type) => type.trim().toLowerCase());
 
+    // Prevent guessing more types than the Pokemon has
     if (typesGuessArray.length > currentPokemon.types.length) {
       typesGuessArray.slice(0, currentPokemon.types.length);
     }
 
+    // Check each guessed type against the actual types of the Pokemon
     currentPokemon.types.forEach((type) => {
       const typeName = type.type.name.toLowerCase();
 
