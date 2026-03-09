@@ -18,6 +18,10 @@ export default function Page() {
   const [amountOfTypesCorrect, setAmountOfTypesCorrect] = useState<number>();
 
   const [score, setScore] = useState<number>(0);
+  const [roundsPlayed, setRoundsPlayed] = useState<number>(0); // 10 rounds total
+  const [roundFinished, setRoundFinished] = useState<boolean>(false);
+
+  const [blacklist, setBlacklist] = useState<number[]>([]);
 
   const [submitButtonDisabled, setSubmitButtonDisabled] =
     useState<boolean>(true);
@@ -71,6 +75,19 @@ export default function Page() {
     setIsIdCorrect(isIdCorrect);
     setIsNameCorrect(isNameCorrect);
     setAmountOfTypesCorrect(amountOfTypesCorrect);
+    setRoundFinished(true);
+  }
+
+  function nextRound() {
+    setIdGuess("");
+    setNameGuess("");
+    setTypeGuess("");
+
+    setIsIdCorrect(undefined);
+    setIsNameCorrect(undefined);
+    setAmountOfTypesCorrect(undefined);
+    setRoundFinished(false);
+    setRoundsPlayed(roundsPlayed + 1);
   }
 
   // Fetch a random Pokemon
@@ -79,6 +96,15 @@ export default function Page() {
     async function fetchPokemon() {
       try {
         const pokemon = await getPokemon();
+
+        if (blacklist.includes(pokemon.id)) {
+          console.log(
+            `Pokemon with id ${pokemon.id} is already used. Fetching another one...`,
+          );
+          return fetchPokemon();
+        }
+        setBlacklist([...blacklist, pokemon.id]);
+
         setCurrentPokemon(pokemon);
 
         setTimeout(() => {
@@ -91,7 +117,7 @@ export default function Page() {
       }
     }
     fetchPokemon();
-  }, []);
+  }, [roundsPlayed]);
 
   // Disable button until all guesses have been made
   useEffect(() => {
@@ -115,81 +141,116 @@ export default function Page() {
   return (
     <div className="flex flex-col items-center mt-4 gap-2">
       <h1 className="text-4xl font-bold">The Pokédex Game</h1>
-      <h3 className="text-xl">Score: {score}</h3>
 
-      {currentPokemon && (
-        <div className="flex gap-4 mt-20 bg-gray-700 p-4 rounded-lg">
-          {isLoading ? (
-            <div className="flex items-center justify-center w-48 h-48">
-              <BounceLoader color="#36d7b7" />
-            </div>
-          ) : (
-            <div className="flex items-center justify-center w-48 h-48">
-              <img
-                src={currentPokemon.sprites.front_default}
-                className="w-full h-full object-contain"
-              />
-            </div>
-          )}
+      {currentPokemon && roundsPlayed < 10 && (
+        <>
+          <h3 className="text-xl">Score: {score}</h3>
+          <h4 className="text-lg">Round: {roundsPlayed + 1} / 10</h4>
 
-          {/* Pokedex Information */}
-          <div className="w-full">
-            <div>
-              <StatCardInput statType="Name" setGuess={setNameGuess} />
-              {isNameCorrect !== undefined && (
-                <div className="py-1">
-                  {isNameCorrect ? "✅" : "❌"} ({currentPokemon.name})
-                </div>
-              )}
-            </div>
+          <div className="flex gap-4 mt-20 bg-gray-700 p-4 rounded-lg">
+            {isLoading ? (
+              <div className="flex items-center justify-center w-48 h-48">
+                <BounceLoader color="#36d7b7" />
+              </div>
+            ) : (
+              <div className="flex items-center justify-center w-48 h-48">
+                <img
+                  src={currentPokemon.sprites.front_default}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            )}
 
-            <div>
-              <StatCardInput statType="National Number" setGuess={setIdGuess} />
-              {isIdCorrect !== undefined && (
-                <div className="py-1">
-                  {isIdCorrect ? "✅" : "❌"} ({currentPokemon.id})
-                </div>
-              )}
-            </div>
+            {/* Pokedex Information */}
+            <div className="w-full">
+              {/* GUESS: Name */}
+              <div>
+                <StatCardInput
+                  statType="Name"
+                  guess={nameGuess}
+                  setGuess={setNameGuess}
+                />
+                {isNameCorrect !== undefined && (
+                  <div className="py-1">
+                    {isNameCorrect ? "✅" : "❌"} ({currentPokemon.name})
+                  </div>
+                )}
+              </div>
 
-            <StatCard statType="Height" statInfo={currentPokemon.height} />
-            <StatCard statType="Weight" statInfo={currentPokemon.weight} />
+              {/* GUESS: National ID */}
+              <div>
+                <StatCardInput
+                  statType="National Number"
+                  guess={idGuess}
+                  setGuess={setIdGuess}
+                />
+                {isIdCorrect !== undefined && (
+                  <div className="py-1">
+                    {isIdCorrect ? "✅" : "❌"} ({currentPokemon.id})
+                  </div>
+                )}
+              </div>
 
-            <div>
-              <StatCardInput
-                statType="Type"
-                setGuess={setTypeGuess}
-                placeholder="Enter type(s) seperated by a comma"
-              />
-              {amountOfTypesCorrect !== undefined && (
-                <div
-                  className={`py-1 ${amountOfTypesCorrect === currentPokemon.types.length && "text-green-500"} ${
-                    amountOfTypesCorrect > 0 &&
-                    amountOfTypesCorrect < currentPokemon.types.length &&
-                    "text-yellow-500"
-                  } `}
-                >
-                  {amountOfTypesCorrect} out of {currentPokemon.types.length}{" "}
-                  correct (
-                  {currentPokemon.types
-                    .map((type) => type.type.name)
-                    .join(", ")}
-                  )
-                </div>
-              )}
+              <StatCard statType="Height" statInfo={currentPokemon.height} />
+              <StatCard statType="Weight" statInfo={currentPokemon.weight} />
+
+              {/* GUESS: Type(s) */}
+              <div>
+                <StatCardInput
+                  statType="Type"
+                  guess={typeGuess}
+                  setGuess={setTypeGuess}
+                  placeholder="Enter type(s) seperated by a comma"
+                />
+                {amountOfTypesCorrect !== undefined && (
+                  <div
+                    className={`py-1 ${amountOfTypesCorrect === currentPokemon.types.length && "text-green-500"} ${
+                      amountOfTypesCorrect > 0 &&
+                      amountOfTypesCorrect < currentPokemon.types.length &&
+                      "text-yellow-500"
+                    } `}
+                  >
+                    {amountOfTypesCorrect} out of {currentPokemon.types.length}{" "}
+                    correct (
+                    {currentPokemon.types
+                      .map((type) => type.type.name)
+                      .join(", ")}
+                    )
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+
+          <button
+            className={`text-white font-bold py-2 px-4 rounded ${submitButtonDisabled ? "bg-gray-500 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-700 cursor-pointer"}`}
+            type="submit"
+            onClick={checkGuesses}
+            disabled={submitButtonDisabled}
+          >
+            Submit Guess
+          </button>
+
+          {roundFinished && <button onClick={nextRound}>Next round</button>}
+        </>
       )}
 
-      <button
-        className={`text-white font-bold py-2 px-4 rounded ${submitButtonDisabled ? "bg-gray-500 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-700 cursor-pointer"}`}
-        type="submit"
-        onClick={() => checkGuesses()}
-        disabled={submitButtonDisabled}
-      >
-        Submit Guess
-      </button>
+      {roundsPlayed >= 10 && (
+        <div className="flex flex-col items-center mt-20 gap-4">
+          <h2 className="text-3xl font-bold">Game Over!</h2>
+          <p className="text-xl">Your final score is: {score}</p>
+          <button
+            className="text-white font-bold py-2 px-4 rounded bg-green-500 hover:bg-green-700 cursor-pointer"
+            onClick={() => {
+              setScore(0);
+              setRoundsPlayed(0);
+              setBlacklist([]);
+            }}
+          >
+            Play Again
+          </button>
+        </div>
+      )}
     </div>
   );
 }

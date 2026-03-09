@@ -1,11 +1,13 @@
 interface StatCardInputProps {
   statType: string;
+  guess?: string;
   setGuess: (value: string) => void;
   placeholder?: string;
 }
 
 export default function StatCardInput({
   statType,
+  guess,
   setGuess,
   placeholder,
 }: StatCardInputProps) {
@@ -17,6 +19,7 @@ export default function StatCardInput({
         className="bg-gray-400 text-black px-4 py-2 text-lg w-lg"
         onChange={(e) => setGuess(e.target.value)}
         placeholder={placeholder || `Enter ${statType.toLowerCase()}`}
+        value={guess || ""}
       />
     </div>
   );
