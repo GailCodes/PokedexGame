@@ -35,13 +35,20 @@ export default function Page() {
     const isIdCorrect: boolean = idGuess === currentPokemon.id.toString();
 
     // Remove punctuation, extra whitespace and make lowercase for name guess
+    // remove whitespace in middle of name
     const formattedNameGuess = nameGuess
       .toLowerCase()
       .replace(/[^\w\s]|_/g, "")
-      .replace(/\s+/g, " ")
-      .trim();
-    const isNameCorrect: boolean =
-      formattedNameGuess === currentPokemon.name.toLowerCase();
+      .replace(/\s+/g, "");
+
+    const formattedPokemonName = currentPokemon.name
+      .toLowerCase()
+      .replace(/[^\w\s]|_/g, "")
+      .replace(/\s+/g, "");
+
+    console.log(formattedNameGuess, formattedPokemonName);
+
+    const isNameCorrect: boolean = formattedNameGuess === formattedPokemonName;
 
     // Check how many types are correct (seperate by comma and trim whitespace)
     let amountOfTypesCorrect: number = 0;
