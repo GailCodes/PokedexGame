@@ -192,7 +192,9 @@ export default function Page() {
                     setGuess={setNameGuess}
                   />
                   {isNameCorrect !== undefined && (
-                    <div className="py-1">
+                    <div
+                      className={`py-1 ${isNameCorrect ? "text-green-500" : "text-red-500"}`}
+                    >
                       {isNameCorrect ? "✅" : "❌"} ({currentPokemon.name})
                     </div>
                   )}
@@ -206,7 +208,9 @@ export default function Page() {
                     setGuess={setIdGuess}
                   />
                   {isIdCorrect !== undefined && (
-                    <div className="py-1">
+                    <div
+                      className={`py-1 ${isIdCorrect ? "text-green-500" : "text-red-500"}`}
+                    >
                       {isIdCorrect ? "✅" : "❌"} ({currentPokemon.id})
                     </div>
                   )}
@@ -229,8 +233,14 @@ export default function Page() {
                         amountOfTypesCorrect > 0 &&
                         amountOfTypesCorrect < currentPokemon.types.length &&
                         "text-yellow-500"
-                      } `}
+                      } ${amountOfTypesCorrect === 0 && "text-red-500"}`}
                     >
+                      {amountOfTypesCorrect === currentPokemon.types.length &&
+                        "✅"}
+                      {amountOfTypesCorrect > 0 &&
+                        amountOfTypesCorrect < currentPokemon.types.length &&
+                        "🟨"}
+                      {amountOfTypesCorrect === 0 && "❌"}{" "}
                       {amountOfTypesCorrect} out of{" "}
                       {currentPokemon.types.length} correct (
                       {currentPokemon.types
