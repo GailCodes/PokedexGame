@@ -33,8 +33,15 @@ export default function Page() {
     setSubmitButtonDisabled(true);
 
     const isIdCorrect: boolean = idGuess === currentPokemon.id.toString();
+
+    // Remove punctuation, extra whitespace and make lowercase for name guess
+    const formattedNameGuess = nameGuess
+      .toLowerCase()
+      .replace(/[^\w\s]|_/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
     const isNameCorrect: boolean =
-      nameGuess.toLowerCase() === currentPokemon.name.toLowerCase();
+      formattedNameGuess === currentPokemon.name.toLowerCase();
 
     // Check how many types are correct (seperate by comma and trim whitespace)
     let amountOfTypesCorrect: number = 0;
@@ -155,91 +162,103 @@ export default function Page() {
           <h3 className="text-xl">Score: {score}</h3>
           <h4 className="text-lg">Round: {roundsPlayed + 1} / 10</h4>
 
-          <div className="flex gap-4 mt-20 bg-gray-700 p-4 rounded-lg">
-            {isLoading ? (
-              <div className="flex items-center justify-center w-48 h-48">
-                <BounceLoader color="#36d7b7" />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center w-48 h-48">
-                <img
-                  src={currentPokemon.sprites.front_default}
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            )}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              checkGuesses();
+            }}
+          >
+            <div className="flex gap-4 mt-20 bg-gray-700 p-4 rounded-lg">
+              {isLoading ? (
+                <div className="flex items-center justify-center w-48 h-48">
+                  <BounceLoader color="#36d7b7" />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center w-48 h-48">
+                  <img
+                    src={currentPokemon.sprites.front_default}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              )}
 
-            {/* Pokedex Information */}
-            <div className="w-full">
-              {/* GUESS: Name */}
-              <div>
-                <StatCardInput
-                  statType="Name"
-                  guess={nameGuess}
-                  setGuess={setNameGuess}
-                />
-                {isNameCorrect !== undefined && (
-                  <div className="py-1">
-                    {isNameCorrect ? "✅" : "❌"} ({currentPokemon.name})
-                  </div>
-                )}
-              </div>
+              {/* Pokedex Information */}
+              <div className="w-full">
+                {/* GUESS: Name */}
+                <div>
+                  <StatCardInput
+                    statType="Name"
+                    guess={nameGuess}
+                    setGuess={setNameGuess}
+                  />
+                  {isNameCorrect !== undefined && (
+                    <div className="py-1">
+                      {isNameCorrect ? "✅" : "❌"} ({currentPokemon.name})
+                    </div>
+                  )}
+                </div>
 
-              {/* GUESS: National ID */}
-              <div>
-                <StatCardInput
-                  statType="National Number"
-                  guess={idGuess}
-                  setGuess={setIdGuess}
-                />
-                {isIdCorrect !== undefined && (
-                  <div className="py-1">
-                    {isIdCorrect ? "✅" : "❌"} ({currentPokemon.id})
-                  </div>
-                )}
-              </div>
+                {/* GUESS: National ID */}
+                <div>
+                  <StatCardInput
+                    statType="National Number"
+                    guess={idGuess}
+                    setGuess={setIdGuess}
+                  />
+                  {isIdCorrect !== undefined && (
+                    <div className="py-1">
+                      {isIdCorrect ? "✅" : "❌"} ({currentPokemon.id})
+                    </div>
+                  )}
+                </div>
 
-              <StatCard statType="Height" statInfo={currentPokemon.height} />
-              <StatCard statType="Weight" statInfo={currentPokemon.weight} />
+                <StatCard statType="Height" statInfo={currentPokemon.height} />
+                <StatCard statType="Weight" statInfo={currentPokemon.weight} />
 
-              {/* GUESS: Type(s) */}
-              <div>
-                <StatCardInput
-                  statType="Type"
-                  guess={typeGuess}
-                  setGuess={setTypeGuess}
-                  placeholder="Enter type(s) seperated by a comma"
-                />
-                {amountOfTypesCorrect !== undefined && (
-                  <div
-                    className={`py-1 ${amountOfTypesCorrect === currentPokemon.types.length && "text-green-500"} ${
-                      amountOfTypesCorrect > 0 &&
-                      amountOfTypesCorrect < currentPokemon.types.length &&
-                      "text-yellow-500"
-                    } `}
-                  >
-                    {amountOfTypesCorrect} out of {currentPokemon.types.length}{" "}
-                    correct (
-                    {currentPokemon.types
-                      .map((type) => type.type.name)
-                      .join(", ")}
-                    )
-                  </div>
-                )}
+                {/* GUESS: Type(s) */}
+                <div>
+                  <StatCardInput
+                    statType="Type"
+                    guess={typeGuess}
+                    setGuess={setTypeGuess}
+                    placeholder="Enter type(s) seperated by a comma"
+                  />
+                  {amountOfTypesCorrect !== undefined && (
+                    <div
+                      className={`py-1 ${amountOfTypesCorrect === currentPokemon.types.length && "text-green-500"} ${
+                        amountOfTypesCorrect > 0 &&
+                        amountOfTypesCorrect < currentPokemon.types.length &&
+                        "text-yellow-500"
+                      } `}
+                    >
+                      {amountOfTypesCorrect} out of{" "}
+                      {currentPokemon.types.length} correct (
+                      {currentPokemon.types
+                        .map((type) => type.type.name)
+                        .join(", ")}
+                      )
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          <button
-            className={`text-white font-bold py-2 px-4 rounded ${submitButtonDisabled ? "bg-gray-500 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-700 cursor-pointer"}`}
-            type="submit"
-            onClick={checkGuesses}
-            disabled={submitButtonDisabled}
-          >
-            Submit Guess
-          </button>
+            <div className="flex flex-col items-center justify-center gap-2 mt-2">
+              <button
+                className={`text-white font-bold w-48 py-2 px-4 rounded ${submitButtonDisabled ? "bg-gray-500 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-700 cursor-pointer"}`}
+                type="submit"
+                disabled={submitButtonDisabled}
+              >
+                Submit Guess
+              </button>
 
-          {roundFinished && <button onClick={nextRound}>Next round</button>}
+              {roundFinished && (
+                <button className="cursor-pointer" onClick={nextRound}>
+                  Next round
+                </button>
+              )}
+            </div>
+          </form>
         </>
       )}
 
