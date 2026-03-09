@@ -29,7 +29,7 @@ export default function Page() {
 
   // Check if guesses are correct
   function checkGuesses() {
-    if (!currentPokemon) return;
+    if (!currentPokemon || roundFinished) return;
     setSubmitButtonDisabled(true);
 
     const isIdCorrect: boolean = idGuess === currentPokemon.id.toString();
@@ -108,9 +108,8 @@ export default function Page() {
         setCurrentPokemon(pokemon);
 
         setTimeout(() => {
-          // setSubmitButtonDisabled(false);
           setIsLoading(false);
-        }, 1000);
+        }, 250);
       } catch (error) {
         console.error("Error fetching Pokemon:", error);
         setIsLoading(false);
@@ -121,12 +120,21 @@ export default function Page() {
 
   // Disable button until all guesses have been made
   useEffect(() => {
+    if (roundFinished) return;
+
     if (!idGuess || !nameGuess || !typeGuess) {
       setSubmitButtonDisabled(true);
     } else {
       setSubmitButtonDisabled(false);
     }
-  }, [idGuess, nameGuess, typeGuess]);
+  }, [idGuess, nameGuess, typeGuess, roundFinished]);
+
+  // Disabe button until next round
+  useEffect(() => {
+    if (roundFinished) {
+      setSubmitButtonDisabled(true);
+    }
+  }, [roundFinished]);
 
   // Update score
   useEffect(() => {
