@@ -9,7 +9,7 @@ function randomID(): number {
 
 async function getPokemon() {
   const id = randomID();
-  const response = await fetch(`${POKE_API_BASE_URL}/pokemon/122`);
+  const response = await fetch(`${POKE_API_BASE_URL}/pokemon/${id}`);
 
   if (response.status === 200) {
     const data = await response.json();
