@@ -13,9 +13,11 @@ export default function Page() {
   const [nameGuess, setNameGuess] = useState<string>("");
   const [typeGuess, setTypeGuess] = useState<string>("");
 
-  const [isIdCorrect, setIsIdCorrect] = useState<boolean>(false);
-  const [isNameCorrect, setIsNameCorrect] = useState<boolean>(false);
-  const [amountOfTypesCorrect, setAmountOfTypesCorrect] = useState<number>(0);
+  const [isIdCorrect, setIsIdCorrect] = useState<boolean>();
+  const [isNameCorrect, setIsNameCorrect] = useState<boolean>();
+  const [amountOfTypesCorrect, setAmountOfTypesCorrect] = useState<number>();
+
+  const [score, setScore] = useState<number>(0);
 
   const [submitButtonDisabled, setSubmitButtonDisabled] =
     useState<boolean>(true);
@@ -80,7 +82,7 @@ export default function Page() {
         setCurrentPokemon(pokemon);
 
         setTimeout(() => {
-          setSubmitButtonDisabled(false);
+          // setSubmitButtonDisabled(false);
           setIsLoading(false);
         }, 1000);
       } catch (error) {
@@ -91,9 +93,29 @@ export default function Page() {
     fetchPokemon();
   }, []);
 
+  // Disable button until all guesses have been made
+  useEffect(() => {
+    if (!idGuess || !nameGuess || !typeGuess) {
+      setSubmitButtonDisabled(true);
+    } else {
+      setSubmitButtonDisabled(false);
+    }
+  }, [idGuess, nameGuess, typeGuess]);
+
+  // Update score
+  useEffect(() => {
+    let newScore = score;
+    if (isIdCorrect) newScore += 1;
+    if (isNameCorrect) newScore += 1;
+    if (amountOfTypesCorrect) newScore += amountOfTypesCorrect;
+
+    setScore(newScore);
+  }, [isIdCorrect, isNameCorrect, amountOfTypesCorrect]);
+
   return (
     <div className="flex flex-col items-center mt-4 gap-2">
       <h1 className="text-4xl font-bold">The Pokédex Game</h1>
+      <h3 className="text-xl">Score: {score}</h3>
 
       {currentPokemon && (
         <div className="flex gap-4 mt-20 bg-gray-700 p-4 rounded-lg">
@@ -110,22 +132,59 @@ export default function Page() {
             </div>
           )}
 
+          {/* Pokedex Information */}
           <div className="w-full">
-            <StatCardInput statType="National Number" setGuess={setIdGuess} />
-            <StatCardInput statType="Name" setGuess={setNameGuess} />
+            <div>
+              <StatCardInput statType="Name" setGuess={setNameGuess} />
+              {isNameCorrect !== undefined && (
+                <div className="py-1">
+                  {isNameCorrect ? "✅" : "❌"} ({currentPokemon.name})
+                </div>
+              )}
+            </div>
+
+            <div>
+              <StatCardInput statType="National Number" setGuess={setIdGuess} />
+              {isIdCorrect !== undefined && (
+                <div className="py-1">
+                  {isIdCorrect ? "✅" : "❌"} ({currentPokemon.id})
+                </div>
+              )}
+            </div>
+
             <StatCard statType="Height" statInfo={currentPokemon.height} />
             <StatCard statType="Weight" statInfo={currentPokemon.weight} />
-            <StatCardInput
-              statType="Type"
-              setGuess={setTypeGuess}
-              placeholder="Enter type(s) seperated by a comma"
-            />
+
+            <div>
+              <StatCardInput
+                statType="Type"
+                setGuess={setTypeGuess}
+                placeholder="Enter type(s) seperated by a comma"
+              />
+              {amountOfTypesCorrect !== undefined && (
+                <div
+                  className={`py-1 ${amountOfTypesCorrect === currentPokemon.types.length && "text-green-500"} ${
+                    amountOfTypesCorrect > 0 &&
+                    amountOfTypesCorrect < currentPokemon.types.length &&
+                    "text-yellow-500"
+                  } `}
+                >
+                  {amountOfTypesCorrect} out of {currentPokemon.types.length}{" "}
+                  correct (
+                  {currentPokemon.types
+                    .map((type) => type.type.name)
+                    .join(", ")}
+                  )
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
 
       <button
         className={`text-white font-bold py-2 px-4 rounded ${submitButtonDisabled ? "bg-gray-500 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-700 cursor-pointer"}`}
+        type="submit"
         onClick={() => checkGuesses()}
         disabled={submitButtonDisabled}
       >
