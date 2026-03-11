@@ -327,17 +327,26 @@ export default function Page() {
 
                 {/* GUESS: National ID */}
                 <div>
-                  <StatCardInput
-                    statType="National Number"
-                    guess={idGuess}
-                    setGuess={setIdGuess}
-                  />
-                  {isIdCorrect !== undefined && (
-                    <div
-                      className={`py-1 ${isIdCorrect ? "text-green-500" : "text-red-500"}`}
-                    >
-                      {isIdCorrect ? "✅" : "❌"} ({currentPokemon.id})
-                    </div>
+                  {difficulty === DIFFICULTIES.hard ? (
+                    <>
+                      <StatCardInput
+                        statType="National Number"
+                        guess={idGuess}
+                        setGuess={setIdGuess}
+                      />
+                      {isIdCorrect !== undefined && (
+                        <div
+                          className={`py-1 ${isIdCorrect ? "text-green-500" : "text-red-500"}`}
+                        >
+                          {isIdCorrect ? "✅" : "❌"} ({currentPokemon.id})
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <StatCard
+                      statType="National Number"
+                      statInfo={currentPokemon.id}
+                    />
                   )}
                 </div>
 
