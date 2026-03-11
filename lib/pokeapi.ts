@@ -1,14 +1,6 @@
 const POKE_API_BASE_URL = "https://pokeapi.co/api/v2";
-const POKEMON_COUNT = 151;
 
-function randomID(): number {
-  const id = Math.floor(Math.random() * POKEMON_COUNT) + 1;
-
-  return id;
-}
-
-async function getPokemon() {
-  const id = randomID();
+async function getPokemon(id: number) {
   const response = await fetch(`${POKE_API_BASE_URL}/pokemon/${id}`);
 
   if (response.status === 200) {

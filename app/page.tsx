@@ -1,10 +1,27 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { getPokemon } from "@lib/pokeapi";
 import StatCard from "@components/StatCard";
 import StatCardInput from "@components/StatCardInput";
+import { getPokemon } from "@lib/pokeapi";
+import { useEffect, useState } from "react";
 import { BounceLoader } from "react-spinners";
+
+const DIFFICULTIES = {
+  normal: "normal",
+  hard: "hard",
+};
+
+const GENERATIONS = [
+  { number: 1, min: 1, max: 151 },
+  { number: 2, min: 152, max: 251 },
+  { number: 3, min: 252, max: 386 },
+  { number: 4, min: 387, max: 493 },
+  { number: 5, min: 494, max: 649 },
+  { number: 6, min: 650, max: 721 },
+  { number: 7, min: 722, max: 809 },
+  { number: 8, min: 810, max: 905 },
+  { number: 9, min: 906, max: 1025 },
+];
 
 export default function Page() {
   const [currentPokemon, setCurrentPokemon] = useState<any>(null);
@@ -16,6 +33,10 @@ export default function Page() {
   const [isIdCorrect, setIsIdCorrect] = useState<boolean>();
   const [isNameCorrect, setIsNameCorrect] = useState<boolean>();
   const [amountOfTypesCorrect, setAmountOfTypesCorrect] = useState<number>();
+
+  const [gameStarted, setGameStarted] = useState<boolean>(false);
+  const [difficulty, setDifficulty] = useState<string>(DIFFICULTIES.normal);
+  const [selectedGens, setSelectedGens] = useState<number[]>([1]);
 
   const [score, setScore] = useState<number>(0);
   const [roundsPlayed, setRoundsPlayed] = useState<number>(0); // 10 rounds total
@@ -46,8 +67,6 @@ export default function Page() {
       .replace(/[^\w\s]|_/g, "")
       .replace(/\s+/g, "");
 
-    console.log(formattedNameGuess, formattedPokemonName);
-
     const isNameCorrect: boolean = formattedNameGuess === formattedPokemonName;
 
     // Check how many types are correct (seperate by comma and trim whitespace)
@@ -70,22 +89,6 @@ export default function Page() {
       }
     });
 
-    console.log("ID Guess:", isIdCorrect, "Actual ID:", currentPokemon.id);
-    console.log(
-      "Name Guess:",
-      isNameCorrect,
-      "Actual Name:",
-      currentPokemon.name,
-    );
-    console.log(
-      "Type Guess:",
-      amountOfTypesCorrect,
-      "out of",
-      currentPokemon.types.length,
-      "Actual Types:",
-      currentPokemon.types.map((type) => type.type.name).join(", "),
-    );
-
     setIsIdCorrect(isIdCorrect);
     setIsNameCorrect(isNameCorrect);
     setAmountOfTypesCorrect(amountOfTypesCorrect);
@@ -104,17 +107,34 @@ export default function Page() {
     setRoundsPlayed(roundsPlayed + 1);
   }
 
+  function getRandomPokemonId() {
+    const selectedGenerations = GENERATIONS.filter((generation) =>
+      selectedGens.includes(generation.number),
+    );
+
+    const randomGenIndex = Math.floor(
+      Math.random() * selectedGenerations.length,
+    );
+
+    const min = selectedGenerations[randomGenIndex].min;
+    const max = selectedGenerations[randomGenIndex].max;
+
+    const id = Math.floor(Math.random() * (max - min + 1)) + min;
+
+    return id;
+  }
+
   // Fetch a random Pokemon
   useEffect(() => {
+    if (!gameStarted) return;
+
     setIsLoading(true);
     async function fetchPokemon() {
       try {
-        const pokemon = await getPokemon();
+        const id = getRandomPokemonId();
+        const pokemon = await getPokemon(id);
 
         if (blacklist.includes(pokemon.id)) {
-          console.log(
-            `Pokemon with id ${pokemon.id} is already used. Fetching another one...`,
-          );
           return fetchPokemon();
         }
         setBlacklist([...blacklist, pokemon.id]);
@@ -130,7 +150,7 @@ export default function Page() {
       }
     }
     fetchPokemon();
-  }, [roundsPlayed]);
+  }, [roundsPlayed, gameStarted]);
 
   // Disable button until all guesses have been made
   useEffect(() => {
@@ -161,10 +181,108 @@ export default function Page() {
   }, [isIdCorrect, isNameCorrect, amountOfTypesCorrect]);
 
   return (
-    <div className="flex flex-col items-center mt-4 gap-2">
-      <h1 className="text-4xl font-bold">The Pokédex Game</h1>
+    <div className="flex flex-col items-center gap-2 h-full">
+      <h1 className="text-center text-4xl font-bold bg-gray-700 w-full py-4">
+        The Pokédex Game
+      </h1>
 
-      {currentPokemon && roundsPlayed < 10 && (
+      {!gameStarted && (
+        <div className="pt-8">
+          <h4 className="text-3xl font-semibold">
+            Welcome to the Pokédex Game!
+          </h4>
+
+          <div className="py-10">
+            <p className="text-2xl pb-2"> &gt; Difficulty &lt;</p>
+            <div>
+              <input
+                type="checkbox"
+                value={DIFFICULTIES.normal}
+                name={DIFFICULTIES.normal}
+                checked={difficulty === DIFFICULTIES.normal}
+                onChange={() => setDifficulty(DIFFICULTIES.normal)}
+                className="accent-yellow-500 w-4 h-4"
+              />
+
+              <label
+                className="ml-2 text-xl text-yellow-500"
+                htmlFor={DIFFICULTIES.normal}
+              >
+                Normal
+              </label>
+            </div>
+
+            <div>
+              <input
+                type="checkbox"
+                value={DIFFICULTIES.hard}
+                name={DIFFICULTIES.hard}
+                checked={difficulty === DIFFICULTIES.hard}
+                onChange={() => setDifficulty(DIFFICULTIES.hard)}
+                className="accent-red-500 w-4 h-4"
+              />
+
+              <label
+                className="ml-2 text-xl text-red-500"
+                htmlFor={DIFFICULTIES.hard}
+              >
+                Hard
+              </label>
+            </div>
+
+            <p className="text-2xl pb-2 pt-4"> &gt; Generations &lt;</p>
+            <div className="grid grid-cols-4 gap-4">
+              {GENERATIONS.map((generation, index) => (
+                <div key={index}>
+                  <input
+                    type="checkbox"
+                    name={`generation-${generation.number}`}
+                    className="w-4 h-4"
+                    checked={selectedGens.includes(generation.number)}
+                    onChange={() => {
+                      const newGenerationsArray = [...selectedGens];
+                      const indexOfGeneration = selectedGens.indexOf(
+                        generation.number,
+                      );
+
+                      if (indexOfGeneration === -1) {
+                        newGenerationsArray.push(generation.number);
+                      } else {
+                        newGenerationsArray.splice(
+                          newGenerationsArray.indexOf(generation.number),
+                          1,
+                        );
+                      }
+
+                      setSelectedGens(newGenerationsArray);
+                    }}
+                  />
+                  <label
+                    htmlFor={`generation-${generation.number}`}
+                    className="ml-2 text-xl"
+                  >
+                    Gen {generation.number}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              setGameStarted(true);
+              setScore(0);
+              setRoundsPlayed(0);
+              setBlacklist([]);
+            }}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer"
+          >
+            Start Game
+          </button>
+        </div>
+      )}
+
+      {currentPokemon && gameStarted && roundsPlayed < 10 && (
         <>
           <h3 className="text-xl">Score: {score}</h3>
           <h4 className="text-lg">Round: {roundsPlayed + 1} / 10</h4>
