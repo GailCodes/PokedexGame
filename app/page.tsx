@@ -19,7 +19,7 @@ export default function Page() {
   }, [difficulty, selectedGens]);
 
   return (
-    <div className="flex flex-col items-center gap-2 h-full">
+    <div className="flex flex-col items-center gap-2">
       <div className="pt-8">
         <h4 className="text-3xl font-semibold">Welcome to the Pokédex Game!</h4>
 
