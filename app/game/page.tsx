@@ -220,17 +220,18 @@ function GamePage() {
               e.preventDefault();
               checkGuesses();
             }}
+            className="px-2 max-lg:w-screen max-md:w-full"
           >
-            <div className="flex gap-4 mt-10 bg-gray-700 p-4 rounded-lg">
+            <div className="flex gap-4 mt-10 bg-gray-700 p-4 rounded-lg max-md:flex-col ">
               {isLoading ? (
                 <div className="flex items-center justify-center w-48 h-48">
                   <BounceLoader color="#36d7b7" />
                 </div>
               ) : (
-                <div className="flex items-center justify-center w-48 h-48">
+                <div className="w-48 h-48 max-md:w-full max-md:h-64">
                   <img
                     src={currentPokemon.sprites.front_default}
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-contain m-auto"
                   />
                 </div>
               )}
@@ -272,7 +273,7 @@ function GamePage() {
                     </>
                   ) : (
                     <StatCard
-                      statType="National Number"
+                      statType="National Nº"
                       statInfo={currentPokemon.id}
                     />
                   )}
@@ -315,9 +316,9 @@ function GamePage() {
               </div>
             </div>
 
-            <div className="flex flex-col items-center justify-center gap-2 mt-2">
+            <div className="flex flex-col items-center justify-center gap-2 mt-2 max-md:gap-6">
               <button
-                className={`text-lg text-white font-bold py-3 px-4 rounded ${submitButtonDisabled ? "bg-gray-500 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-700 cursor-pointer"}`}
+                className={`text-lg text-white font-bold py-3 px-4 rounded ${submitButtonDisabled ? "bg-gray-500 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-700 cursor-pointer"} max-md:w-full`}
                 type="submit"
                 disabled={submitButtonDisabled}
               >
@@ -325,7 +326,7 @@ function GamePage() {
               </button>
 
               {roundFinished && (
-                <button className="cursor-pointer" onClick={nextRound}>
+                <button className="text-lg cursor-pointer" onClick={nextRound}>
                   {roundsPlayed === 9 ? "See final score" : "Next round"}
                 </button>
               )}

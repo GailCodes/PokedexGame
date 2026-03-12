@@ -12,7 +12,7 @@ export default function RootLayout({
           The Pokédex Game
         </h1>
 
-        {children}
+        <div className="px-4 py-10">{children}</div>
       </body>
     </html>
   );

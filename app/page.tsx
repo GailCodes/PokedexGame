@@ -106,14 +106,14 @@ export default function Page() {
               query: { difficulty, gens: selectedGens.join(",") },
             }}
           >
-            <button className="text-lg bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded cursor-pointer">
+            <button className="text-lg bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded cursor-pointer max-md:w-full">
               Start Game
             </button>
           </Link>
         ) : (
           <button
             disabled
-            className="text-lg bg-gray-500 text-white font-bold py-3 px-4 rounded"
+            className="text-lg bg-gray-500 text-white font-bold py-3 px-4 rounded cursor-not-allowed max-md:w-full"
           >
             Start Game
           </button>
