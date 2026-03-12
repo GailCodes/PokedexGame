@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import StatCard from "@components/StatCard";
 import StatCardInput from "@components/StatCardInput";
@@ -9,8 +10,23 @@ import { DIFFICULTIES, GENERATIONS, MAX_ROUNDS } from "@utils/constants";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Suspense } from "react";
 
 export default function Page() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center w-full h-full">
+          <BounceLoader color="#36d7b7" />
+        </div>
+      }
+    >
+      <GamePage />
+    </Suspense>
+  );
+}
+
+function GamePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const difficulty = searchParams.get("difficulty") || undefined;
@@ -128,7 +144,7 @@ export default function Page() {
     } else {
       setIsCheckingParams(false);
     }
-  }, [difficulty, gens]);
+  }, [difficulty, gens, router]);
 
   // Fetch a random Pokemon
   useEffect(() => {
