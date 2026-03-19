@@ -351,7 +351,7 @@ function GamePage() {
           </button>
 
           <Link href="/">
-            <button className="text-lg text-white font-bold py-3 px-4 rounded bg-green-500 hover:bg-green-700 cursor-pointer">
+            <button className="text-lg text-white font-bold py-3 px-4 rounded bg-gray-600 hover:bg-gray-700 cursor-pointer">
               Change Settings
             </button>
           </Link>
