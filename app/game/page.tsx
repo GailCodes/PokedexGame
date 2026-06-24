@@ -210,7 +210,7 @@ function GamePage() {
     <div className="flex flex-col items-center gap-2">
       {currentPokemon && roundsPlayed < MAX_ROUNDS && (
         <>
-          <h3 className="text-xl mt-10">Score: {score}</h3>
+          <h3 className="text-xl mt-2">Score: {score}</h3>
           <h4 className="text-lg">
             Round: {roundsPlayed + 1} / {MAX_ROUNDS}
           </h4>
@@ -222,7 +222,7 @@ function GamePage() {
             }}
             className="px-2 max-lg:w-screen max-md:w-full"
           >
-            <div className="flex gap-4 mt-10 bg-gray-700 p-4 rounded-lg max-md:flex-col ">
+            <div className="flex gap-4 mt-2 bg-gray-700 p-4 rounded-lg max-md:flex-col ">
               {isLoading ? (
                 <div className="flex items-center justify-center w-48 h-48">
                   <BounceLoader color="#36d7b7" />
